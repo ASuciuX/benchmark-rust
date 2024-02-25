@@ -28,10 +28,10 @@ Suspendisse justo purus, gravida in risus non, tincidunt condimentum purus. Vest
 
 const TEST_SHORT_STR: &str = "short";
 
-fn bench_for_loop_encoding_vec_new(c: &mut Criterion) {
-    let validated_utf8_str = TEST_STR;
+fn bench_for_loop_vec_new(c: &mut Criterion) {
+    let validated_utf8_str = TEST_SHORT_STR;
 
-    c.bench_function("for_loop_encoding_vec_new", |b| {
+    c.bench_function("for_loop_vec_new", |b| {
         b.iter(|| {
             let mut data = Vec::new();
             for char in validated_utf8_str.chars() {
@@ -44,10 +44,10 @@ fn bench_for_loop_encoding_vec_new(c: &mut Criterion) {
     });
 }
 
-fn bench_for_loop_encoding_vec_with_capacity(c: &mut Criterion) {
-    let validated_utf8_str = TEST_STR;
+fn bench_for_loop_vec_with_capacity(c: &mut Criterion) {
+    let validated_utf8_str = TEST_SHORT_STR;
 
-    c.bench_function("for_loop_encoding_vec_with_capacity", |b| {
+    c.bench_function("for_loop_vec_with_capacity", |b| {
         b.iter(|| {
             let mut data = Vec::with_capacity(validated_utf8_str.len() * 4);
             for char in validated_utf8_str.chars() {
@@ -60,10 +60,10 @@ fn bench_for_loop_encoding_vec_with_capacity(c: &mut Criterion) {
     });
 }
 
-fn bench_iterator_encoding(c: &mut Criterion) {
-    let validated_utf8_str = TEST_STR;
+fn bench_map(c: &mut Criterion) {
+    let validated_utf8_str = TEST_SHORT_STR;
 
-    c.bench_function("iterator_encoding", |b| {
+    c.bench_function("map", |b| {
         b.iter(|| {
             let data = validated_utf8_str
                 .chars()
@@ -78,5 +78,56 @@ fn bench_iterator_encoding(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, bench_for_loop_encoding_vec_new, bench_for_loop_encoding_vec_with_capacity, bench_iterator_encoding);
+fn bench_flat_map(c: &mut Criterion) {
+    let validated_utf8_str = TEST_SHORT_STR;
+
+    c.bench_function("flat_map", |b| {
+        b.iter(|| {
+            let data = validated_utf8_str
+                .chars()
+                .flat_map(|char| {
+                    let mut encoded_char = vec![0u8; char.len_utf8()];
+                    char.encode_utf8(&mut encoded_char[..]);
+                    encoded_char
+                })
+                .collect::<Vec<_>>();
+            black_box(data);
+        })
+    });
+}
+
+fn bench_append(c: &mut Criterion) {
+    let validated_utf8_str = TEST_SHORT_STR;
+
+    c.bench_function("append", |b| {
+        b.iter(|| {
+            let mut data = Vec::new();
+            for char in validated_utf8_str.chars() {
+                let mut encoded_char = vec![0; char.len_utf8()];
+                char.encode_utf8(&mut encoded_char[..]);
+                data.append(&mut encoded_char);
+            }
+            black_box(data);
+        })
+    });
+}
+
+fn bench_append_with_capacity(c: &mut Criterion) {
+    let validated_utf8_str = TEST_SHORT_STR;
+
+    c.bench_function("append_with_capacity", |b| {
+        b.iter(|| {
+            let mut data = Vec::with_capacity(validated_utf8_str.len() * 4);
+            for char in validated_utf8_str.chars() {
+                let mut encoded_char = vec![0; char.len_utf8()];
+                char.encode_utf8(&mut encoded_char[..]);
+                data.append(&mut encoded_char);
+            }
+            black_box(data);
+        })
+    });
+}
+
+
+criterion_group!(benches, bench_for_loop_vec_new, bench_for_loop_vec_with_capacity, bench_map, bench_flat_map, bench_append, bench_append_with_capacity);
 criterion_main!(benches);
