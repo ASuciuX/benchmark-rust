@@ -2,7 +2,7 @@
 From reading the run results:
 - For Strings: faster is with ref with ref (short and long)
 - For Arrays: faster is with ref with ref (short and long)
-- For Multiple parameters of different kinds: params! macro with values
+- For Multiple parameters of different kinds: params! macro with values sometimes, ref with ref other times
 
 ### First run
 ```shell

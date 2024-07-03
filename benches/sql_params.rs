@@ -203,7 +203,7 @@ fn bench_all_parameters(c: &mut Criterion) {
         b.iter(|| {
             // Add some computational load to prevent zero-time errors
             let _result = black_box({
-                let _args = params![TEST_SHORT_ARR, TEST_LONG_ARR, TEST_LONG_STR, TEST_LONG_STR];
+                let _args = params![TEST_SHORT_ARR, TEST_LONG_ARR, TEST_SHORT_STR, TEST_LONG_STR];
                 // Simulate some additional computation
                 black_box(_args);
             });
@@ -214,7 +214,7 @@ fn bench_all_parameters(c: &mut Criterion) {
         b.iter(|| {
             // Add some computational load to prevent zero-time errors
             let _result = black_box({
-                let _args = params![&TEST_SHORT_ARR, &TEST_LONG_ARR, &TEST_LONG_STR, &TEST_LONG_STR];
+                let _args = params![&TEST_SHORT_ARR, &TEST_LONG_ARR, &TEST_SHORT_STR, &TEST_LONG_STR];
                 // Simulate some additional computation
                 black_box(_args);
             });
@@ -225,7 +225,7 @@ fn bench_all_parameters(c: &mut Criterion) {
         b.iter(|| {
             // Add some computational load to prevent zero-time errors
             let _result = black_box({
-                let _args = &[&TEST_SHORT_ARR as &dyn ToSql, &TEST_LONG_ARR as &dyn ToSql, &TEST_LONG_STR as &dyn ToSql, &TEST_LONG_STR as &dyn ToSql];
+                let _args = &[&TEST_SHORT_ARR as &dyn ToSql, &TEST_LONG_ARR as &dyn ToSql, &TEST_SHORT_STR as &dyn ToSql, &TEST_LONG_STR as &dyn ToSql];
                 // Simulate some additional computation
                 black_box(_args);
             });
@@ -235,15 +235,49 @@ fn bench_all_parameters(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(
-    benches,
-    bench_array,
-    bench_array_long,
-    bench_short_string,
-    bench_long_string,
-    bench_all_parameters
-);
-criterion_main!(benches);
+
+
+fn bench_multiple_string(c: &mut Criterion) {
+    let mut group = c.benchmark_group("multiple_string");
+
+    let TEST_SHORT_STR = "Lorem ipsum dolor sit amet";
+    const TEST_LONG_STR: &str = TEST_STR;
+
+    group.bench_function("params_macro_value_multiple_string", |b| {
+        b.iter(|| {
+            // Add some computational load to prevent zero-time errors
+            let _result = black_box({
+                let _args = params![TEST_LONG_STR, TEST_LONG_STR, TEST_SHORT_STR, TEST_SHORT_STR];
+                // Simulate some additional computation
+                black_box(_args);
+            });
+        });
+    });
+
+    group.bench_function("params_macro_ref_multiple_string", |b| {
+        b.iter(|| {
+            // Add some computational load to prevent zero-time errors
+            let _result = black_box({
+                let _args = params![&TEST_LONG_STR, &TEST_LONG_STR, &TEST_SHORT_STR, &TEST_SHORT_STR];
+                // Simulate some additional computation
+                black_box(_args);
+            });
+        });
+    });
+
+    group.bench_function("ref_macro_ref_multiple_string", |b| {
+        b.iter(|| {
+            // Add some computational load to prevent zero-time errors
+            let _result = black_box({
+                let _args = &[&TEST_LONG_STR as &dyn ToSql, &TEST_LONG_STR as &dyn ToSql, &TEST_SHORT_STR as &dyn ToSql, &TEST_SHORT_STR as &dyn ToSql];
+                // Simulate some additional computation
+                black_box(_args);
+            });
+        });
+    });
+
+    group.finish();
+}
 
 
 const TEST_STR: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin non tortor vestibulum, molestie mi ac, tincidunt dui. Curabitur ut nisl purus. Vestibulum tincidunt neque et orci venenatis, consequat tincidunt diam ultrices. Nam faucibus hendrerit mauris, nec pretium dolor finibus eu. Nunc et ornare eros, non rutrum elit. Nunc gravida leo bibendum elit rhoncus, a iaculis dui dictum. Donec cursus velit eget eleifend consectetur. Suspendisse in dui fringilla, elementum urna et, condimentum lectus. Donec convallis sapien vitae magna faucibus, sit amet volutpat nunc dapibus.
@@ -271,3 +305,14 @@ Cras finibus sapien quis lorem interdum eleifend. Sed fermentum ex a ligula aliq
 Suspendisse justo purus, gravida in risus non, tincidunt condimentum purus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere.
 
 ";
+
+criterion_group!(
+    benches,
+    bench_array,
+    bench_array_long,
+    bench_short_string,
+    bench_long_string,
+    bench_all_parameters,
+    bench_multiple_string,
+);
+criterion_main!(benches);
