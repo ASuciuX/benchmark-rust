@@ -6,10 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rusqlite = "0.31.0"
 
 [dev-dependencies]
 criterion = "0.5.1"
 
 [[bench]]
-name = "first_benchmark"
+name = "sql_params" # modify this to the benchmark wanted
 harness = false
